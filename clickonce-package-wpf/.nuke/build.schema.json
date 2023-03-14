@@ -73,6 +73,7 @@
             "type": "string",
             "enum": [
               "Clean",
+              "ClickOnce",
               "Compile",
               "Publish",
               "Restore"
@@ -90,6 +91,7 @@
             "type": "string",
             "enum": [
               "Clean",
+              "ClickOnce",
               "Compile",
               "Publish",
               "Restore"

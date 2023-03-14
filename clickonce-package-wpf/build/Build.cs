@@ -1,9 +1,11 @@
+using System;
 using System.Linq;
 using Nuke.Common;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.MSBuild;
 using Nuke.Common.Utilities.Collections;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
@@ -21,6 +23,7 @@ class Build : NukeBuild
     AbsolutePath SourceDirectory => RootDirectory / "src";
     AbsolutePath TestsDirectory => RootDirectory / "src" / "*.Tests";
     AbsolutePath OutputDirectory => RootDirectory / "output";
+    AbsolutePath PublishDirectory => RootDirectory / "publish";
 
     Target Clean => _ => _
         .Before(Restore)
@@ -64,4 +67,27 @@ class Build : NukeBuild
                    .SetProject(v.project)
                    .SetFramework(v.framework)));
        });
+
+
+    Target ClickOnce => _ => _
+    .DependsOn(Restore)
+    .Executes(() =>
+    {
+        var csprojFile = RootDirectory + @"\code\code.csproj";
+        var publishProfile = "ClickOnceProfile";
+
+        MSBuildTasks.MSBuild(s => s
+            .SetTargetPath(csprojFile)
+            .SetTargets("Clean", "Restore", "Build", "Publish")
+            .SetConfiguration(Configuration)
+            .SetNodeReuse(IsLocalBuild)
+            .SetProperty("DeployOnBuild", "true")
+            .SetProperty("PublishProfile", publishProfile)
+            .SetProperty("Platform", "AnyCPU")
+            .SetProperty("PublishDir", PublishDirectory)
+            );
+
+        // Key for this to work was to include the following line in the code project:
+        // <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    });
 }
