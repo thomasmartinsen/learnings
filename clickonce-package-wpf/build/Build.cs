@@ -68,7 +68,6 @@ class Build : NukeBuild
                    .SetFramework(v.framework)));
        });
 
-
     Target ClickOnce => _ => _
     .DependsOn(Restore)
     .Executes(() =>
